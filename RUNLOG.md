@@ -127,3 +127,37 @@ New-ADUser -Name "Test User" -GivenName "Test" -Surname "User" `
 -AccountPassword (ConvertTo-SecureString "Password123!" -AsPlainText -Force) `
 -Enabled $true
 ```
+
+Updated user credentials and configuration:
+
+Reset password to custom value
+Disabled forced password change at next logon
+
+Validated user creation:
+
+Verified via Get-ADUser
+Confirmed object placement in ADUC (HD5-Users OU)
+
+Configured domain object placement behavior:
+
+Redirected default containers:
+Computers → HD5-Workstations
+Users → HD5-Users
+
+powershellredircmp "OU=HD5-Workstations,DC=haledistrict,DC=local"
+redirusr "OU=HD5-Users,DC=haledistrict,DC=local"
+
+## Outcome
+
+Successfully validated end-to-end identity workflow: PowerShell → Active Directory → GUI visibility → Object management. Confirmed proper OU targeting and control over default object placement. Established a clean and controlled AD baseline for all future domain-joined systems.
+
+## Notes / Observations
+
+PowerShell-based user creation provides precision and repeatability compared to GUI workflows. Immediate validation via both CLI and ADUC confirms synchronization across management interfaces. Redirection of default containers ensures all new domain objects align with defined OU structure, preventing clutter and maintaining long-term organization. This step represents the transition from "domain exists" to "domain is structured and controlled."
+
+## Next Steps
+
+Create Hyper-V checkpoint: HD5-DC01_BASELINE_CLEAN (completed)
+Begin FS01 deployment using differencing disk
+Join FS01 to domain and validate connectivity
+Design initial file share structure and permissions model
