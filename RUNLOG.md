@@ -161,3 +161,163 @@ Create Hyper-V checkpoint: HD5-DC01_BASELINE_CLEAN (completed)
 Begin FS01 deployment using differencing disk
 Join FS01 to domain and validate connectivity
 Design initial file share structure and permissions model
+
+## [2026-03-XX] — GPO Pilot Ring Exploration + Modeling Validation
+
+### Objective
+
+Begin exploring Group Policy design strategies in HD5, with a focus on pilot ring deployment and validation using Group Policy Modeling.
+
+---
+
+### Actions Completed
+
+- Created pilot security group:
+  - SG-HD5-Pilot-Workstations (in HD5-Groups OU)
+
+- Created and configured new GPO:
+  - GPO-HD5-Pilot-Disable-ControlPanel
+  - Purpose: Disable Control Panel access for pilot devices
+
+- Linked GPO to:
+  - OU: HD5-Workstations
+
+- Configured Security Filtering:
+  - Removed default "Authenticated Users"
+  - Added: SG-HD5-Pilot-Workstations
+
+---
+
+### Group Policy Modeling (Simulation)
+
+- Launched Group Policy Modeling Wizard on HD5-DC01
+- Simulated:
+  - Computer in: HD5-Workstations OU
+  - Security Group Membership:
+    - SG-HD5-Pilot-Workstations
+
+- Initial Issue:
+  - "Name Not Found" error when adding security group
+  - Root cause:
+    - Incorrect group name used ("HD5-Pilot-Workstations")
+  - Resolution:
+    - Corrected to: SG-HD5-Pilot-Workstations
+
+---
+
+### Validation Results
+
+- GPO successfully applied in modeling when:
+  - Computer is in correct OU AND
+  - Computer is member of SG-HD5-Pilot-Workstations
+
+- Confirmed:
+  - Security filtering + OU scoping working as expected
+
+---
+
+### Key Learning
+
+- GPO application depends on BOTH:
+  - OU location (link scope)
+  - Security group membership (filtering)
+
+- Group Policy Modeling is critical for:
+  - Pre-deployment validation
+  - Avoiding misconfiguration in production
+
+- Naming conventions matter:
+  - Consistent "SG-" prefix improves clarity and troubleshooting
+
+---
+
+### Strategic Insight
+
+- This work represents early implementation of:
+  - Pilot ring deployment strategy (enterprise best practice)
+
+- HOWEVER:
+  - No client workstations currently exist in HD5
+  - GPO cannot yet be tested on real endpoints
+
+---
+
+### Decision
+
+- PAUSE further GPO work
+- RETURN to core HD5 build sequence:
+
+````plaintext
+1. Rebuild GOLD image
+2. Sysprep GOLD image
+3. Rebuild FS01 from GOLD
+4. Deploy client machines (STUD/TEACH)
+5. Resume GPO deployment + testing
+
+## [2026-03-XX] — HD5 Closure and Transition to HD6
+
+### Summary
+HD5 development revealed key architectural and operational insights but resulted in a partially inconsistent environment due to:
+
+- Golden image contamination via checkpoint (.avhdx)
+- Early-stage DC01 build inconsistencies
+- Out-of-sequence exploration of GPO and pilot ring strategy prior to client deployment
+- Accumulation of test VMs (e.g., BASELINE-INVESTIGATION, TEMP-GOLD-FIX)
+
+---
+
+### Key Lessons Learned
+
+- Golden images must remain:
+  - Checkpoint-free
+  - Unmodified after finalization
+  - Trusted as a clean base
+
+- Hyper-V checkpoints introduce differencing disks (.avhdx):
+  - These break golden image integrity if not managed properly
+
+- Proper build sequence is critical:
+```plaintext
+GOLD → Infrastructure → Clients → GPO
+- GPO design (pilot rings) was successfully validated conceptually using Group Policy Modeling, but requires client endpoints for real validation
+
+---
+
+### Decision
+
+HD5 will be:
+
+- Archived to external SSD
+- Preserved as a reference and learning milestone
+
+HD5 environment will NOT be continued or repaired
+
+---
+
+### Transition
+
+Begin HD6 with:
+
+- Clean Hyper-V environment
+- Clean file structure
+- Rebuilt Golden Images from scratch
+- Strict adherence to build order and image integrity
+
+---
+
+### Status
+
+HD5:  Closed
+HD6:  Initiating
+
+---
+
+### Notes for HD6
+
+- Golden Image must remain checkpoint-free at all times
+- Never boot or modify GOLD image outside of controlled preparation workflow
+- Use GOLD image ONLY as a source for new VMs or differencing disks
+- Maintain strict naming conventions (e.g., SG-, GPO-, HD6- prefixes)
+- Follow build sequence without deviation:
+  GOLD → Infrastructure → Clients → GPO
+````
