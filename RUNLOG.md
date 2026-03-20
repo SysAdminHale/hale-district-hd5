@@ -320,4 +320,15 @@ HD6:  Initiating
 - Maintain strict naming conventions (e.g., SG-, GPO-, HD6- prefixes)
 - Follow build sequence without deviation:
   GOLD → Infrastructure → Clients → GPO
+
+  Golden Image Integrity Incident Identified:
+
+- GOLD-WIN-SRV-BUILD.vhdx was found to have an associated .avhdx checkpoint file
+- This indicates the image was modified after checkpointing and is no longer a clean base
+- Image integrity is considered compromised
+
+Action Taken:
+- Image retired and archived to external SSD
+- Will not be reused or repaired
+- Future builds will enforce checkpoint-free golden image policy
 ````
